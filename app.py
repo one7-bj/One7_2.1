@@ -266,7 +266,7 @@ if st.session_state.resultats_detail:
     if st.button("➕ Ajouter la ligne"):
         st.session_state.imputations_epinglees.append({
             "Numéro Pièce": piece_choisie,
-            "Date": details['date'],           # 'date' minuscule
+            "Date": details['date_doc'],           # 'date' minuscule
             "Journal": details['journal'],     # 'journal' minuscule
             "Fournisseur": details['tiers'],   # 'tiers' pas 'fournisseur'
             "Compte": m_compte, "Libellé": m_libelle, 
