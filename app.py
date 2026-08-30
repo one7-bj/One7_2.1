@@ -122,10 +122,11 @@ def charger_depuis_db():
             df.rename(columns={
                 'id': 'ID',
                 'n_piece': 'N° Pièce',
-                'date': 'date_doc',  # ICI LE FIX
-                'type_doc': 'TYPE_DOC',
-                'tiers': 'Fournisseur',  # aussi 'tiers' pas 'fournisseur'
+                'date': 'date_doc',      # db -> code
+                'journal': 'Journal',    # db -> code  
+                'tiers': 'Fournisseur',  # db -> code
                 'libelle': 'Libellé',
+                'type_doc': 'TYPE_DOC',
                 'ht': 'HT',
                 'tva': 'TVA', 
                 'aib': 'AIB',
@@ -264,7 +265,10 @@ if st.session_state.resultats_detail:
 
     if st.button("➕ Ajouter la ligne"):
         st.session_state.imputations_epinglees.append({
-            "Numéro Pièce": piece_choisie, "Date": details['Date'], "Journal": details['Journal'], 
+            "Numéro Pièce": piece_choisie,
+            "Date": details['date'],           # 'date' minuscule
+            "Journal": details['journal'],     # 'journal' minuscule
+            "Fournisseur": details['tiers'],   # 'tiers' pas 'fournisseur'
             "Compte": m_compte, "Libellé": m_libelle, 
             "Débit": m_montant if sens_montant == "Débit" else 0.0, 
             "Crédit": m_montant if sens_montant == "Crédit" else 0.0
