@@ -418,8 +418,8 @@ if st.session_state.resultats_detail:
         csv_sfe = generer_csv_sfe(df_recap, mois, annee)
         st.download_button(label="📥 Télécharger Déclaration SFE pour DGI", data=csv_sfe, file_name=f"DECL_TVA_{annee}{mois:02d}.csv", mime="text/csv")
         st.info("Importez ce fichier sur https://www.impots.bj > Espace SFE")
-    else:
-        st.warning("Aucun document trouvé pour cette période")
+else:
+    st.warning("Aucun document trouvé pour cette période")
 else:
     st.warning("Traitez d'abord des documents pour générer la déclaration")
 
