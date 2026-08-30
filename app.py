@@ -165,6 +165,41 @@ def charger_cgi(uploaded_file):
 cgi_file = st.sidebar.file_uploader("Uploader CGI 2026 PDF")
 CGI_TEXTE = charger_cgi(cgi_file)
 
+def charger_parametres():
+    try:
+        # 1. Plan et CCI
+        res_plan = supabase.table('plan_comptable').select("*").eq('user_id', user_id).execute()
+        res_cci = supabase.table('cci').select("*").eq('user_id', user_id).execute()
+        if res_plan.data: st.session_state.plan_comptable = pd.DataFrame(res_plan.data).to_dict('records')
+        if res_cci.data: st.session_state.cci = pd.DataFrame(res_cci.data).to_dict('records')
+
+        # 2. CGI et Infos Générales - NOUVEAU
+        res_gen = supabase.table('parametres_generaux').select("*").eq('user_id', user_id).single().execute()
+        if res_gen.data:
+            st.session_state.cgi_texte = res_gen.data.get('cgi_texte', '')
+            st.session_state.nom_entreprise = res_gen.data.get('nom_entreprise', '')
+
+    except Exception as e:
+        print(f"Erreur chargement paramètres: {e}")
+
+def sauvegarder_parametres(df_plan, df_cci, cgi_texte="", nom_entreprise=""):
+    # 1. Plan et CCI
+    if df_plan is not None and not df_plan.empty:
+        df_plan['user_id'] = user_id
+        supabase.table('plan_comptable').upsert(df_plan.to_dict('records')).execute()
+    if df_cci is not None and not df_cci.empty:
+        df_cci['user_id'] = user_id
+        supabase.table('cci').upsert(df_cci.to_dict('records')).execute()
+    
+    # 2. CGI et Infos Générales - NOUVEAU
+    supabase.table('parametres_generaux').upsert({
+        'user_id': user_id,
+        'cgi_texte': cgi_texte,
+        'nom_entreprise': nom_entreprise
+    }).execute()
+    
+    st.toast("✅ Paramètres sauvegardés sur le Cloud")
+    
 # === PARAMETRAGE ===
 st.sidebar.header("📁 Paramétrage")
 type_doc_choisi = st.sidebar.selectbox("Type de document", ["Facture d'achat", "Facture de vente", "Relevé bancaire"])
