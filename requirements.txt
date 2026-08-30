@@ -6,4 +6,4 @@ python-dotenv
 openpyxl
 PyMuPDF
 scikit-learn
-import pdfplumber
+pdfplumber
