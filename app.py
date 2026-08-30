@@ -71,18 +71,46 @@ model = genai.GenerativeModel('gemini-3.6-flash')
 
 # === 2. DB FUNCTIONS SUPABASE ===
 def sauvegarder_dans_db():
-    if st.session_state.resultats_detail:
-        df_doc = pd.DataFrame(st.session_state.resultats_detail)
-        df_doc['user_id'] = user_id # CRITIQUE : on tag les données
-        df_doc = df_doc.rename(columns={"N° Pièce": "n_piece", "Date": "date", "Journal": "journal", "Tiers": "tiers", "Libellé": "libelle", "N°IFU": "nifu", "HT": "ht", "TVA 18%": "tva", "AIB": "aib", "Taux AIB": "taux_aib", "TTC": "ttc", "Type Doc": "type_doc"})
-        supabase.table('documents').upsert(df_doc.to_dict('records'), on_conflict='user_id,n_piece').execute()
+    try:
+        if st.session_state.resultats_detail:
+            df_doc = pd.DataFrame(st.session_state.resultats_detail)
+            df_doc['user_id'] = user_id  # Tag utilisateur
+            
+            # Renommage des colonnes pour correspondre exact aux noms dans Supabase
+            df_doc = df_doc.rename(columns={
+                "N° Pièce": "n_piece", 
+                "Date": "date", 
+                "Journal": "journal", 
+                "Tiers": "tiers", 
+                "Libellé": "libelle", 
+                "N°IFU": "nifu", 
+                "HT": "ht", 
+                "TVA 18%": "tva", 
+                "AIB": "aib", 
+                "Taux AIB": "taux_aib", 
+                "TTC": "ttc", 
+                "Type Doc": "type_doc",
+                "Fichier": "fichier",  # AJOUTÉ
+                "Motif": "motif"       # AJOUTÉ si tu l'as
+            })
+            
+            # Suppression des doublons locaux avant l'envoi
+            df_doc = df_doc.drop_duplicates(subset=['user_id', 'n_piece'])
+            
+            # Upsert dans Supabase
+            records = df_doc.to_dict('records')
+            supabase.table('documents').upsert(records, on_conflict='user_id,n_piece').execute()
 
-    if st.session_state.imputations_epinglees:
-        df_imp = pd.DataFrame(st.session_state.imputations_epinglees)
-        df_imp['user_id'] = user_id
-        df_imp = df_imp.rename(columns={"Numéro Pièce": "n_piece"})
-        supabase.table('imputations').upsert(df_imp.to_dict('records')).execute()
-    st.toast("✅ Sauvegardé sur le Cloud")
+        if st.session_state.imputations_epinglees:
+            df_imp = pd.DataFrame(st.session_state.imputations_epinglees)
+            df_imp['user_id'] = user_id
+            df_imp = df_imp.rename(columns={"Numéro Pièce": "n_piece", "Compte": "compte", "Débit": "debit", "Crédit": "credit"})
+            records_imp = df_imp.to_dict('records')
+            supabase.table('imputations').upsert(records_imp, on_conflict='user_id,n_piece,compte').execute() # mieux pour les imputations
+
+        st.toast("✅ Sauvegardé sur le Cloud")
+    except Exception as e:
+        st.error(f"Erreur lors de la sauvegarde Supabase : {e}")
 
 def charger_depuis_db():
     try:
