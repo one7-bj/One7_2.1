@@ -85,12 +85,16 @@ def sauvegarder_dans_db():
     st.toast("✅ Sauvegardé sur le Cloud")
 
 def charger_depuis_db():
-    res_doc = supabase.table('documents').select("*").eq('user_id', user_id).execute()
-    res_imp = supabase.table('imputations').select("*").eq('user_id', user_id).execute()
-    if res_doc.data:
-        st.session_state.resultats_detail = pd.DataFrame(res_doc.data).rename(columns={"n_piece": "N° Pièce", "date": "Date"}).to_dict('records')
-    if res_imp.data:
-        st.session_state.imputations_epinglees = pd.DataFrame(res_imp.data).rename(columns={"n_piece": "Numéro Pièce"}).to_dict('records')
+    try:
+        res_doc = supabase.table('documents').select("*").eq('user_id', user_id).execute()
+        res_imp = supabase.table('imputations').select("*").eq('user_id', user_id).execute()
+        if res_doc.data:
+            st.session_state.resultats_detail = pd.DataFrame(res_doc.data).rename(columns={"n_piece": "N° Pièce", "date": "Date"}).to_dict('records')
+        if res_imp.data:
+            st.session_state.imputations_epinglees = pd.DataFrame(res_imp.data).rename(columns={"n_piece": "Numéro Pièce"}).to_dict('records')
+    except Exception as e:
+        # Table might not be fully initialized yet
+        pass
 
 # === SESSION STATE ===
 if 'resultats_detail' not in st.session_state: st.session_state.resultats_detail = []
