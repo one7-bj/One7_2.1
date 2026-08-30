@@ -114,15 +114,22 @@ def sauvegarder_dans_db():
 
 def charger_depuis_db():
     try:
-        res_doc = supabase.table('documents').select("*").eq('user_id', user_id).execute()
-        res_imp = supabase.table('imputations').select("*").eq('user_id', user_id).execute()
-        if res_doc.data:
-            st.session_state.resultats_detail = pd.DataFrame(res_doc.data).rename(columns={"n_piece": "N° Pièce", "date": "Date"}).to_dict('records')
-        if res_imp.data:
-            st.session_state.imputations_epinglees = pd.DataFrame(res_imp.data).rename(columns={"n_piece": "Numéro Pièce"}).to_dict('records')
+        res = supabase.table('documents').select("*").eq('user_id', user_id).execute()
+        if res.data:
+            df = pd.DataFrame(res.data)
+            # ON MET TOUT EN MAJUSCULE POUR ÊTRE COHÉRENT
+            df.rename(columns={
+                'ht': 'HT',
+                'tva': 'TVA', 
+                'aib': 'AIB',
+                'ttc': 'TTC',
+                'taux_aib': 'TAUX_AIB',
+                'type_doc': 'TYPE_DOC'
+            }, inplace=True)
+            st.session_state.factures_df = df
+            st.session_state.resultats_detail = df.to_dict('records') # si tu utilises ça
     except Exception as e:
-        # Table might not be fully initialized yet
-        pass
+        st.error(f"Erreur chargement DB: {e}")
 
 # === SESSION STATE ===
 if 'resultats_detail' not in st.session_state: st.session_state.resultats_detail = []
