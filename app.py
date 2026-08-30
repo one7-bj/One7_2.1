@@ -352,15 +352,27 @@ st.header("📊 Déclaration TVA & AIB - DGI SFE")
 
 if st.session_state.resultats_detail:
     df_docs = pd.DataFrame(st.session_state.resultats_detail)
-    df_docs["Date_dt"] = pd.to_datetime(df_docs["date_doc"], errors='coerce')
+    
+    # 1. On sécurise la colonne date
+    if 'date_doc' in df_docs.columns:
+        df_docs["Date_dt"] = pd.to_datetime(df_docs["date_doc"], errors='coerce')
+        # On vire les lignes où la date est vide
+        df_docs = df_docs.dropna(subset=['Date_dt'])
+    else:
+        st.warning("Colonne 'date_doc' introuvable dans les données")
+        df_docs["Date_dt"] = pd.NaT
 
     col_p1, col_p2 = st.columns(2)
-    with col_p1: mois = st.selectbox("Mois", range(1,13), format_func=lambda x: datetime(2026, x, 1).strftime('%B'))
-    with col_p2: annee = st.selectbox("Année", [2025, 2026, 2027])
+    with col_p1: 
+        mois = st.selectbox("Mois", range(1,13), format_func=lambda x: datetime(2026, x, 1).strftime('%B'))
+    with col_p2: 
+        annee = st.selectbox("Année", [2025, 2026, 2027])
 
-    df_mois = df_docs[(df_docs["Date_dt"].dt.month == mois) & (df_docs["Date_dt"].dt.year == annee)]
-
-    if not df_mois.empty:
+    # 2. On vérifie qu'on a des dates avant de filtrer
+    if not df_docs.empty and 'Date_dt' in df_docs.columns:
+        df_mois = df_docs[(df_docs["Date_dt"].dt.month == mois) & (df_docs["Date_dt"].dt.year == annee)]
+    else:
+        df_mois = pd.DataFrame()
         st.subheader(f"Récapitulatif {datetime(2026, mois, 1).strftime('%B %Y')}")
 
         ca_vente_ht = df_mois[df_mois["Type Doc"]=="Facture de vente"]["HT"].sum()
