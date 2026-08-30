@@ -394,28 +394,41 @@ st.divider()
 st.header("💬 Assistant Fiscal One7")
 question = st.text_input("Posez votre question sur la fiscalité béninoise ou le SYSCOHADA...")
 def assistant_fiscal(question):
-    contexte = ""
-    # 1. On met les factures du mois en contexte
-    if st.session_state.resultats_detail:
-        contexte += f"Données du client: {json.dumps(st.session_state.resultats_detail[:10])}\n"
+    mots_cles_cgi = ["tva", "aib", "cfe", "is", "irpp", "cgi", "article", "exonération", "déduction", "taux", "déclaration", "bénin", "fiscal", "impôt"]
+    question_lower = question.lower()
     
-    # 2. On met le CGI si uploadé
-    if 'cgi_texte' in st.session_state:
-        contexte += f"Extrait CGI Bénin: {st.session_state.cgi_texte[:4000]}"
+    if not any(mot in question_lower for mot in mots_cles_cgi):
+        return "❌ Désolé, je suis l'Assistant Fiscal One7 Pro. Je ne peux répondre qu'aux questions relatives au CGI du Bénin."
 
-    prompt = f"""Tu es un expert fiscal du Bénin. Réponds en français en te basant UNIQUEMENT sur ce contexte:
-    {contexte}
+    contexte = "Tu es un expert fiscal du Bénin. Réponds uniquement avec les infos du contexte ci-dessous.\n\n"
     
-    Question: {question}
-    Donne l'article du CGI si possible."""
+    if 'cgi_texte' in st.session_state and st.session_state.cgi_texte:
+        contexte += f"--- CONTEXTE CGI BÉNIN 2026 ---\n{st.session_state.cgi_texte[:6000]}\n\n"
+    else:
+        contexte += "--- CONTEXTE CGI BÉNIN 2026 ---\nAucun fichier CGI uploadé.\n\n"
+
+    if st.session_state.resultats_detail:
+        df_temp = pd.DataFrame(st.session_state.resultats_detail)
+        contexte += f"--- DONNÉES CLIENT DU MOIS ---\n{df_temp.to_string()}\n\n"
+
+    prompt = f"""{contexte}
+    QUESTION DE L'UTILISATEUR: {question}
     
-    response = model.generate_content(prompt)
-    return response.text
-except Exception as e:
-        if "JWT" in str(e):
+    INSTRUCTIONS:
+    1. Réponds uniquement en te basant sur le CONTEXTE.
+    2. Cite l'article du CGI si tu l'utilises.
+    3. Si la réponse n'est pas dans le contexte, dis: "Cette information n'est pas présente dans le CGI uploadé."
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:  # CORRIGÉ ICI
+        if "expired" in str(e).lower():
             st.warning("Session expirée. Reconnectez-vous.")
             supabase.auth.sign_out()
             st.session_state.user = None
-            st.rerun()
+            return None
         else:
             st.error(f"Erreur IA: {e}")
+            return None
