@@ -351,7 +351,7 @@ if question:
         st.info(model.generate_content(prompt).text)
     # === DECONNEXION AUTO SI TOKEN EXPIRE ===
     except Exception as e:
-    if "JWT" in str(e):
+        if "JWT" in str(e):
         st.warning("Session expirée. Reconnectez-vous.")
         supabase.auth.sign_out()
         st.session_state.user = None
