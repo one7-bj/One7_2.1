@@ -393,11 +393,25 @@ else:
 st.divider()
 st.header("💬 Assistant Fiscal One7")
 question = st.text_input("Posez votre question sur la fiscalité béninoise ou le SYSCOHADA...")
-if question:
-    try:
-        prompt = f"Tu es un expert fiscal au Bénin. Réponds UNIQUEMENT en te basant sur le Code Général des Impôts 2026 et le SYSCOHADA. Cite l'article exact. Si pas dans le texte, dis-le. Question: {question} \n\n TEXTE DE REFERENCE: {CGI_TEXTE[:8000]}"
-        st.info(model.generate_content(prompt).text)
-    except Exception as e:
+def assistant_fiscal(question):
+    contexte = ""
+    # 1. On met les factures du mois en contexte
+    if st.session_state.resultats_detail:
+        contexte += f"Données du client: {json.dumps(st.session_state.resultats_detail[:10])}\n"
+    
+    # 2. On met le CGI si uploadé
+    if 'cgi_texte' in st.session_state:
+        contexte += f"Extrait CGI Bénin: {st.session_state.cgi_texte[:4000]}"
+
+    prompt = f"""Tu es un expert fiscal du Bénin. Réponds en français en te basant UNIQUEMENT sur ce contexte:
+    {contexte}
+    
+    Question: {question}
+    Donne l'article du CGI si possible."""
+    
+    response = model.generate_content(prompt)
+    return response.text
+except Exception as e:
         if "JWT" in str(e):
             st.warning("Session expirée. Reconnectez-vous.")
             supabase.auth.sign_out()
