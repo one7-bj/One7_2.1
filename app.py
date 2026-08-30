@@ -267,7 +267,7 @@ if st.session_state.resultats_detail:
         st.session_state.imputations_epinglees.append({
             "Numéro Pièce": piece_choisie,
             "Date": details['date_doc'],           # 'date' minuscule
-            "Journal": details['journal'],     # 'journal' minuscule
+            "Journal": details['Journal'],     # 'Journal' minuscule
             "Fournisseur": details['tiers'],   # 'tiers' pas 'fournisseur'
             "Compte": m_compte, "Libellé": m_libelle, 
             "Débit": m_montant if sens_montant == "Débit" else 0.0, 
