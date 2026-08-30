@@ -346,13 +346,15 @@ st.divider()
 st.header("💬 Assistant Fiscal One7")
 question = st.text_input("Posez votre question sur la fiscalité béninoise ou le SYSCOHADA...")
 if question:
-    prompt = f"Tu es un expert fiscal au Bénin. Réponds UNIQUEMENT en te basant sur le Code Général des Impôts 2026 et le SYSCOHADA. Cite l'article exact. Si pas dans le texte, dis-le. Question: {question} \n\n TEXTE DE REFERENCE: {CGI_TEXTE[:8000]}"
-    st.info(model.generate_content(prompt).text)
-
-# === DECONNEXION AUTO SI TOKEN EXPIRE ===
-except Exception as e:
+    try :
+        prompt = f"Tu es un expert fiscal au Bénin. Réponds UNIQUEMENT en te basant sur le Code Général des Impôts 2026 et le SYSCOHADA. Cite l'article exact. Si pas dans le texte, dis-le. Question: {question} \n\n TEXTE DE REFERENCE: {CGI_TEXTE[:8000]}"
+        st.info(model.generate_content(prompt).text)
+    # === DECONNEXION AUTO SI TOKEN EXPIRE ===
+    except Exception as e:
     if "JWT" in str(e):
         st.warning("Session expirée. Reconnectez-vous.")
         supabase.auth.sign_out()
         st.session_state.user = None
         st.rerun()
+    else:
+            st.error(f"Erreur IA: {e}")
