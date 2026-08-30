@@ -420,6 +420,7 @@ if st.session_state.resultats_detail:
         st.info("Importez ce fichier sur https://www.impots.bj > Espace SFE")
 else:
     st.warning("Aucun document trouvé pour cette période")
+
 else:
     st.warning("Traitez d'abord des documents pour générer la déclaration")
 
