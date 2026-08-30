@@ -118,20 +118,19 @@ def charger_depuis_db():
         if res.data:
             df = pd.DataFrame(res.data)
             
-            # STANDARDISATION TOTALE DES COLONNES
+            # MAPPING CORRECT AVEC 'date'
             df.rename(columns={
                 'id': 'ID',
                 'n_piece': 'N° Pièce',
-                'date_doc': 'Date',
-                'type_doc': 'Type',
-                'fournisseur': 'Fournisseur',
+                'date': 'date_doc',  # ICI LE FIX
+                'type_doc': 'TYPE_DOC',
+                'tiers': 'Fournisseur',  # aussi 'tiers' pas 'fournisseur'
                 'libelle': 'Libellé',
                 'ht': 'HT',
                 'tva': 'TVA', 
                 'aib': 'AIB',
                 'ttc': 'TTC',
-                'taux_aib': 'TAUX_AIB',
-                'compte': 'N° de Compte'
+                'taux_aib': 'TAUX_AIB'
             }, inplace=True)
             
             st.session_state.factures_df = df
