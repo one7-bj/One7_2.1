@@ -67,7 +67,7 @@ st.title("🧾 One7 Pro - Déclaration TVA & AIB Bénin")
 st.caption("Version Cloud Supabase - Multi-utilisateurs")
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-3.6-flash')
 
 # === 2. DB FUNCTIONS SUPABASE ===
 def sauvegarder_dans_db():
