@@ -353,6 +353,14 @@ st.header("📊 Déclaration TVA & AIB - DGI SFE")
 if st.session_state.resultats_detail:
     df_docs = pd.DataFrame(st.session_state.resultats_detail)
     
+    # SÉCURITÉ TOTALE
+    if 'date_doc' in df_docs.columns:
+        df_docs["Date_dt"] = pd.to_datetime(df_docs["date_doc"], errors='coerce')
+        df_docs = df_docs.dropna(subset=['Date_dt'])
+    else:
+        st.error("⚠️ Colonne 'date_doc' introuvable. Vérifie le nom dans Supabase.")
+        st.stop() # On arrête là pour pas crasher
+    
     # 1. On sécurise la colonne date
     if 'date_doc' in df_docs.columns:
         df_docs["Date_dt"] = pd.to_datetime(df_docs["date_doc"], errors='coerce')
