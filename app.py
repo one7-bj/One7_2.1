@@ -352,7 +352,7 @@ st.header("📊 Déclaration TVA & AIB - DGI SFE")
 
 if st.session_state.resultats_detail:
     df_docs = pd.DataFrame(st.session_state.resultats_detail)
-    df_docs["Date_dt"] = pd.to_datetime(df_docs["Date"], errors='coerce')
+    df_docs["Date_dt"] = pd.to_datetime(df_docs["date_doc"], errors='coerce')
 
     col_p1, col_p2 = st.columns(2)
     with col_p1: mois = st.selectbox("Mois", range(1,13), format_func=lambda x: datetime(2026, x, 1).strftime('%B'))
