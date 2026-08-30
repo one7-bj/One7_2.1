@@ -245,7 +245,7 @@ if st.session_state.resultats_detail:
 
     col_c1, col_c2, col_c3, col_c4 = st.columns([2,3,2,2])
     with col_c1: m_compte = st.selectbox("N° de Compte", options=list(PLAN_COMPTABLE.keys()), format_func=lambda x: f"{x} - {get_libelle_compte(x)}")
-    with col_c2: m_libelle = st.text_input("Libellé", value=str(details['Libellé']))
+    with col_c2: m_libelle = st.text_input("Libellé", value=str(details.get('Libellé', details.get('libelle', ''))))
     with col_c3: sens_montant = st.radio("Sens", ["Débit", "Crédit"], horizontal=True)
     with col_c4: m_montant = st.number_input("Montant", value=float(details['TTC'] or 0.0))
 
