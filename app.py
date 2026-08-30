@@ -117,20 +117,27 @@ def charger_depuis_db():
         res = supabase.table('documents').select("*").eq('user_id', user_id).execute()
         if res.data:
             df = pd.DataFrame(res.data)
-            # ON MET TOUT EN MAJUSCULE POUR ÊTRE COHÉRENT
+            
+            # STANDARDISATION TOTALE DES COLONNES
             df.rename(columns={
+                'id': 'ID',
+                'n_piece': 'N° Pièce',
+                'date_doc': 'Date',
+                'type_doc': 'Type',
+                'fournisseur': 'Fournisseur',
+                'libelle': 'Libellé',
                 'ht': 'HT',
                 'tva': 'TVA', 
                 'aib': 'AIB',
                 'ttc': 'TTC',
                 'taux_aib': 'TAUX_AIB',
-                'type_doc': 'TYPE_DOC'
+                'compte': 'N° de Compte'
             }, inplace=True)
+            
             st.session_state.factures_df = df
-            st.session_state.resultats_detail = df.to_dict('records') # si tu utilises ça
+            st.session_state.resultats_detail = df.to_dict('records')
     except Exception as e:
         st.error(f"Erreur chargement DB: {e}")
-
 # === SESSION STATE ===
 if 'resultats_detail' not in st.session_state: st.session_state.resultats_detail = []
 if 'imputations_epinglees' not in st.session_state: st.session_state.imputations_epinglees = []
