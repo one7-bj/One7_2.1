@@ -1,13 +1,33 @@
-[theme]
-primaryColor = "#0056A6" # Bleu profond One7
-backgroundColor = "#F8FAFC" # Fond gris très clair
-secondaryBackgroundColor = "#FFFFFF" # Fond des cartes/blocs
-textColor = "#1E293B" # Texte gris foncé pro
-font = "sans serif"
+# ============================================================
+# ONE7 V2.1
+# config.py
+# ============================================================
 
-[server]
-maxUploadSize = 500 # Pour uploader gros fichiers Excel
-enableCORS = false
+import streamlit as st
 
-[browser]
-gatherUsageStats = false
+
+def get_supabase_url() -> str:
+    """Retourne l'URL Supabase configurée."""
+    try:
+        return st.secrets["SUPABASE_URL"]
+    except Exception:
+        raise RuntimeError(
+            "SUPABASE_URL est introuvable dans .streamlit/secrets.toml"
+        )
+
+
+def get_supabase_key() -> str:
+    """Retourne la clé publique Supabase."""
+    try:
+        return st.secrets["SUPABASE_KEY"]
+    except Exception:
+        raise RuntimeError(
+            "SUPABASE_KEY est introuvable dans .streamlit/secrets.toml"
+        )
+
+
+APP_NAME = "One7"
+APP_VERSION = "2.1.0"
+
+CURRENCY = "XOF"
+CURRENCY_LABEL = "FCFA"
