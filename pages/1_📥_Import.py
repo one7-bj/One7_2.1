@@ -9,7 +9,7 @@ st.header("📥 Import des Factures PDF/Photos")
 user_id = st.session_state.user.id
 supabase = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel('gemini-3.6-flash')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Paramètres
 type_doc_choisi = st.sidebar.selectbox("Type de document", ["Facture d'achat", "Facture de vente", "Relevé bancaire"])
@@ -21,7 +21,9 @@ def sauvegarder_dans_db(resultats):
         df_doc = pd.DataFrame(resultats)
         df_doc['user_id'] = user_id
         df_doc = df_doc.rename(columns={
-            "N° Pièce": "N° Pièce", "Date": "Date", "Journal": "Journal", "Tiers": "Tiers", "Libellé": "Libellé", "N°IFU": "N°IFU", "HT": "HT", "TVA 18%": "TVA 18%", "AIB": "AIB", "Taux AIB": "Taux AIB", "TTC": "TTC", "Type Doc": "Type Doc", "Fichier": "Fichier"
+            "N° Pièce": "n_piece", "Date": "date", "Journal": "journal", "Tiers": "tiers",
+            "Libellé": "libelle", "N°IFU": "nifu", "HT": "ht", "TVA 18%": "tva",
+            "AIB": "aib", "Taux AIB": "taux_aib", "TTC": "ttc", "Type Doc": "type_doc", "Fichier": "fichier"
         })
         df_doc = df_doc.drop_duplicates(subset=['user_id', 'n_piece'])
         supabase.table('documents').upsert(df_doc.to_dict('records'), on_conflict='user_id,n_piece').execute()
