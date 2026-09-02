@@ -13,6 +13,7 @@ import streamlit as st
 
 from auth import initialize_session, is_authenticated, has_cabinet, logout
 from ai_engine import gemini_available, analyze_invoice_text, merge_ai_result, normalize_controls
+from ocr_engine import extract_image_text, extract_pdf_ocr, tesseract_available
 
 from database import (
     get_clients,
@@ -140,6 +141,11 @@ def extract_invoice_fields(file_name: str, file_bytes: bytes):
 
 st.title("📥 Documents")
 st.caption("Importez les pièces du dossier, contrôlez les doublons et préparez leur traitement comptable.")
+if tesseract_available():
+    st.caption("🖨️ OCR disponible : les scans PDF et images peuvent être analysés.")
+else:
+    st.caption("🖨️ OCR non installé : les PDF textuels restent exploitables.")
+
 if gemini_available():
     st.success("🤖 IA activée : pré-analyse des PDF textuels, contrôles et suggestion d’imputation.")
 else:
@@ -174,6 +180,18 @@ if role in WRITE_ROLES:
                 else:
                     file_bytes = uploaded.getvalue()
                     extracted, raw_text = extract_invoice_fields(uploaded.name, file_bytes)
+
+                    # Si le PDF est scanné ou si le fichier est une image, tenter l'OCR.
+                    ocr_message = ""
+                    lower_name = uploaded.name.lower()
+                    if not raw_text and tesseract_available():
+                        if lower_name.endswith((".png", ".jpg", ".jpeg")):
+                            raw_text, ocr_message = extract_image_text(file_bytes)
+                        elif lower_name.endswith(".pdf"):
+                            raw_text, ocr_message = extract_pdf_ocr(file_bytes)
+                    elif not raw_text:
+                        ocr_message = "OCR non disponible sur ce serveur."
+
 
                     # Pré-analyse IA facultative : elle enrichit le dossier mais ne valide jamais.
                     ai_result = None
@@ -222,6 +240,8 @@ if role in WRITE_ROLES:
                                 fields=extracted,
                             )
                             if ok:
+                                if ocr_message:
+                                    st.caption(f"🔎 {ocr_message}")
                                 if ai_result:
                                     for control in normalize_controls(ai_result):
                                         create_accounting_control(
