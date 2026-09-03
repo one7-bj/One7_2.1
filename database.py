@@ -14,8 +14,35 @@ from config import get_supabase_url, get_supabase_key
 
 @lru_cache(maxsize=1)
 def get_supabase() -> Client:
-    """Crée une seule instance du client Supabase pour l'application."""
-    return create_client(get_supabase_url(), get_supabase_key())
+    """Crée et valide une instance du client Supabase.
+
+    Certaines combinaisons de versions/compatibilités peuvent renvoyer
+    un tuple au lieu du client attendu. One7 récupère alors l'objet qui
+    expose l'interface Auth (.auth) afin d'éviter l'erreur :
+    "'tuple' object has no attribute 'auth'".
+    """
+    url = get_supabase_url()
+    key = get_supabase_key()
+
+    if not url or not isinstance(url, str):
+        raise RuntimeError("SUPABASE_URL est vide ou invalide.")
+    if not key or not isinstance(key, str):
+        raise RuntimeError("SUPABASE_KEY est vide ou invalide.")
+
+    raw_client = create_client(url.strip(), key.strip())
+
+    if hasattr(raw_client, "auth"):
+        return raw_client
+
+    if isinstance(raw_client, tuple):
+        for item in raw_client:
+            if hasattr(item, "auth"):
+                return item
+
+    raise RuntimeError(
+        "Le client Supabase retourné n'expose pas l'interface Auth (.auth). "
+        "Vérifiez la version du package supabase installée sur Streamlit Cloud."
+    )
 
 
 def get_current_user():
