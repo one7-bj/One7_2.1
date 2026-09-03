@@ -1,7 +1,7 @@
 import streamlit as st
 
 APP_NAME = "One7"
-APP_VERSION = "2.5.0"
+APP_VERSION = "2.5.2"
 CURRENCY = "XOF"
 CURRENCY_LABEL = "FCFA"
 
