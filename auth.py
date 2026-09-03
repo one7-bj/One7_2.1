@@ -38,9 +38,8 @@ def login(email: str, password: str):
     Connecte un utilisateur avec email + mot de passe.
     """
 
-    supabase = get_supabase()
-
     try:
+        supabase = get_supabase()
 
         response = supabase.auth.sign_in_with_password(
             {
@@ -61,7 +60,7 @@ def login(email: str, password: str):
 
     except Exception as e:
 
-        return False, str(e)
+        return False, f"Erreur de connexion Supabase : {e}"
 
 
 # ============================================================
@@ -73,9 +72,8 @@ def register(email: str, password: str):
     Crée un compte utilisateur Supabase.
     """
 
-    supabase = get_supabase()
-
     try:
+        supabase = get_supabase()
 
         response = supabase.auth.sign_up(
             {
@@ -94,7 +92,7 @@ def register(email: str, password: str):
 
     except Exception as e:
 
-        return False, str(e)
+        return False, f"Erreur d'inscription Supabase : {e}"
 
 
 # ============================================================
