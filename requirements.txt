@@ -8,4 +8,4 @@ PyMuPDF
 scikit-learn
 pdfplumber
 Pillow
-pytesseract
+pytesseract>=0.3.10,<1
