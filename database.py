@@ -31,6 +31,38 @@ def get_supabase() -> Client:
 
     raw_client = create_client(url.strip(), key.strip())
 
+        # ============================================================
+    # DIAGNOSTIC SUPABASE — TEMPORAIRE
+    # ============================================================
+    try:
+        import supabase as supabase_module
+        from importlib.metadata import version as package_version
+
+        print("========== ONE7 SUPABASE DIAGNOSTIC ==========")
+        print("SUPABASE PACKAGE VERSION :", package_version("supabase"))
+        print("SUPABASE MODULE :", supabase_module.__file__)
+        print("CLIENT TYPE :", type(raw_client))
+        print("CLIENT MODULE :", type(raw_client).__module__)
+        print("CLIENT CLASS :", type(raw_client).__name__)
+        print("HAS AUTH :", hasattr(raw_client, "auth"))
+
+        auth_names = [
+            name for name in dir(raw_client)
+            if "auth" in name.lower()
+        ]
+
+        print("AUTH-RELATED ATTRIBUTES :", auth_names)
+        print("HAS POSTGREST :", hasattr(raw_client, "postgrest"))
+        print("HAS STORAGE :", hasattr(raw_client, "storage"))
+        print("HAS FUNCTIONS :", hasattr(raw_client, "functions"))
+        print("HAS REALTIME :", hasattr(raw_client, "realtime"))
+        print("================================================")
+    except Exception as diagnostic_error:
+        print(
+            "ONE7 SUPABASE DIAGNOSTIC ERROR :",
+            repr(diagnostic_error)
+        )
+
     if hasattr(raw_client, "auth"):
         return raw_client
 
